@@ -1,0 +1,7 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: / # Dependabot doesn't recursively search for directories
+    schedule:
+      interval: daily # weekdays only
+    open-pull-requests-limit: 10
