@@ -21,24 +21,57 @@ jobs:
         with:
           # terraform_version: 0.13.0:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-
+      
+      # Run a terraform fmt for push and PR on non-main-branch
       - name: Terraform Format
         id: fmt
+        if: github.ref != 'refs/head/main'
         run: terraform fmt -check
 
       - name: Terraform Init
         id: init
         run: terraform init
-      
+
+      # Run a terraform validate for push and PR on non-main branch
+      # Run if formating fails
       - name: Terraform Validate
         id: validate
+        if: github.ref != 'refs/head/main' && (success() || failure())
         run: terraform validate -no-color
 
+      # Run a terraform plan for pull requests only
       - name: Terraform Plan
         id: plan
         if: github.event_name == 'pull_request'
         run: terraform plan -no-color -input=false
         continue-on-error: true
+
+      # Run Checkov
+      - name: Checkov
+        if: github.event_name == 'pull_request'
+        id: checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: ./
+          quiet: true # optional: display only failed checks
+          # This will add both a CLI output to the console and create a results.sarif file
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+          framework: terraform
+          #soft_fail: true
+          compact: true
+
+      # - name: Upload SARIF file
+      #   uses: github/codeql-action/upload-sarif@v3
+        
+      #   # Results are generated only on a success or failure
+      #   # this is required since GitHub by default won't run the next step
+      #   # when the previous one has failed. Security checks that do not pass will 'fail'.
+      #   # An alternative is to add `continue-on-error: true` to the previous step
+      #   # Or 'soft_fail: true' to checkov.
+      #   if: success() || failure()
+      #   with:
+      #     sarif_file: results.sarif
 
       - name: Update Pull Request
         uses: actions/github-script@v6
@@ -78,35 +111,35 @@ jobs:
         if: github.ref == 'refs/heads/master' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
 
-  build:
-    name: checkov
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read # for actions/checkout to fetch code
-      security-events: write # for GitHub/codeql-action/upload-sarif to upload SARIF results
-    steps:
-    - uses: actions/checkout@v3
 
-    - name: Checkov GitHub Action
-      uses: bridgecrewio/checkov-action@master
-      with:
-        directory: ./
-        quiet: true # optional: display only failed checks
-        # This will add both a CLI output to the console and create a results.sarif file
-        output_format: cli,sarif
-        output_file_path: console,results.sarif
-        framework: terraform
-        #soft_fail: true
-        compact: true
+      # - name: checkov
+      #     runs-on: ubuntu-latest
+      #     permissions:
+      #       contents: read # for actions/checkout to fetch code
+      #       security-events: write # for GitHub/codeql-action/upload-sarif to upload SARIF results
+      #     steps:
+      #     - uses: actions/checkout@v3
       
-    - name: Upload SARIF file
-      uses: github/codeql-action/upload-sarif@v3
-      
-      # Results are generated only on a success or failure
-      # this is required since GitHub by default won't run the next step
-      # when the previous one has failed. Security checks that do not pass will 'fail'.
-      # An alternative is to add `continue-on-error: true` to the previous step
-      # Or 'soft_fail: true' to checkov.
-      if: success() || failure()
-      with:
-        sarif_file: results.sarif
+      #     - name: Checkov GitHub Action
+      #       uses: bridgecrewio/checkov-action@master
+      #       with:
+      #         directory: ./
+      #         quiet: true # optional: display only failed checks
+      #         # This will add both a CLI output to the console and create a results.sarif file
+      #         output_format: cli,sarif
+      #         output_file_path: console,results.sarif
+      #         framework: terraform
+      #         #soft_fail: true
+      #         compact: true
+            
+      #     - name: Upload SARIF file
+      #       uses: github/codeql-action/upload-sarif@v3
+            
+      #       # Results are generated only on a success or failure
+      #       # this is required since GitHub by default won't run the next step
+      #       # when the previous one has failed. Security checks that do not pass will 'fail'.
+      #       # An alternative is to add `continue-on-error: true` to the previous step
+      #       # Or 'soft_fail: true' to checkov.
+      #       if: success() || failure()
+      #       with:
+      #         sarif_file: results.sarif
