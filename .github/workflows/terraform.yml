@@ -113,7 +113,7 @@ jobs:
         with:
           path: ./
           platform_type: terraform
-          cloud_provider: aws,azure,gcp
+          cloud_provider: aws
           ignore_on_exit: results # Don't fail on resutls
           output_path: myResults/
           enable_comments: true
