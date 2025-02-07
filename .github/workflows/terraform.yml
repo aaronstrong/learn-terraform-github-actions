@@ -89,7 +89,7 @@ jobs:
           severity: CRITICAL,HIGH # UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
           version: "v0.57.1" # latest
           scan-type: config
-          hide-progress: true # Suppress progress bar and log output
+          hide-progress: false # Suppress progress bar and log output
           output: trivy.txt
 
       - name: Run Terrascan
@@ -112,8 +112,16 @@ jobs:
         uses: terraform-linters/setup-tflint@v4
         with:
           tflint_version: latest
-          
-          
+      - name: TFLint Show Version
+        run: tflint --version
+
+      # - name: TFLint init
+      #   run: tflint --init
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
+
+      - name: TFLint Run
+        run: tflint -f compactcheck          
           
 
       - name: Update Pull Request
