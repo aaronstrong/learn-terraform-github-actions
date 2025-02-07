@@ -73,6 +73,22 @@ jobs:
       #   with:
       #     sarif_file: results.sarif
 
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          # scan-type: 'fs'
+          # scan-ref: '.'
+          # trivy-config: trivy.yaml
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          scanners: vuln
+          vuln-type: os,library
+          severity: CRITICAL,HIGH
+          version: "v0.57.1"
+          scan-type: config
+          
+
       - name: Update Pull Request
         uses: actions/github-script@v6
         if: github.event_name == 'pull_request' && (success() || failure())
