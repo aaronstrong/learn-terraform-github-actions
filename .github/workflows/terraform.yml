@@ -74,6 +74,7 @@ jobs:
       #     sarif_file: results.sarif
 
       - name: Run Trivy
+        if: github.event_name == 'pull_request'
         id: trivy
         uses: aquasecurity/trivy-action@0.28.0
         with:
@@ -90,6 +91,20 @@ jobs:
           scan-type: config
           hide-progress: true # Suppress progress bar and log output
           output: trivy.txt
+
+      - name: Run Terrascan
+        if: github.event_name == 'pull_request'
+        id: terrascan
+        uses: tenable/terrascan-action@main
+        with:
+          iac_type: terraform # helm, k8s, kustomize, terraform
+          iac_dir: ./
+          non_recursive: false
+          iac_version: v14
+          policy_type: all # aws, azure, gcp, github, k8s
+          only_warn: true
+          # skip_rules
+          # sarif_upload
           
           
 
