@@ -105,6 +105,14 @@ jobs:
           only_warn: true
           # skip_rules
           # sarif_upload
+
+      - name: Run TFLint
+        if: github.event_name == 'pull_request'
+        id: tflint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+          
           
           
 
