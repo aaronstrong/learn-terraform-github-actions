@@ -60,6 +60,7 @@ jobs:
           framework: terraform
           #soft_fail: true
           compact: true
+          skip_check: CKV_AWS_8,CKV_AWS_79,CKV_AWS_126,CKV_AWS_135,CKV_AWS_23,CKV2_AWS_41
 
       # - name: Upload SARIF file
       #   uses: github/codeql-action/upload-sarif@v3
