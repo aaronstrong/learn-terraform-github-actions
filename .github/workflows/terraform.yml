@@ -75,7 +75,7 @@ jobs:
 
       - name: Update Pull Request
         uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && (success() || failure())
         env:
           PLAN: ${{ steps.plan.outputs.stdout }}
         with:
@@ -85,12 +85,18 @@ jobs:
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Checkov 🧪\`${{ steps.checkov.outcome }}\`
 
             <details><summary>Show Plan</summary>
 
             \`\`\`terraform\n
             ${process.env.PLAN}
             \`\`\`
+
+            </details>
+
+            <details><summary>Show Checkov Results</summary>
+            ${process.env.CHECKOV_RESULTS}
 
             </details>
 
