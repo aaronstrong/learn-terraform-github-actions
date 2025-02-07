@@ -79,17 +79,26 @@ jobs:
         run: terraform apply -auto-approve -input=false
 
   build:
-    name: checkof
+    name: checkov
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
+    - uses: actions/checkout@v3
+
+    - name: Checkov GitHub Action
+      uses: bridgecrewio/checkov-action@vmaster
       with:
-        python-version: 3.8
-    - name: Test with Checkov
-      id: checkov
-      uses: bridgecrewio/checkov-action@master
+        # This will add both a CLI output to the console and create a results.sarif file
+        output_format: cli,sarif
+        output_file_path: console,results.sarif
+      
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v2
+      
+      # Results are generated only on a success or failure
+      # this is required since GitHub by default won't run the next step
+      # when the previous one has failed. Security checks that do not pass will 'fail'.
+      # An alternative is to add `continue-on-error: true` to the previous step
+      # Or 'soft_fail: true' to checkov.
+      if: success() || failure()
       with:
-        directory: ./
-        framework: terraform
+        sarif_file: results.sarif
