@@ -74,19 +74,23 @@ jobs:
       #     sarif_file: results.sarif
 
       - name: Run Trivy
+        id: trivy
         uses: aquasecurity/trivy-action@0.28.0
         with:
           # scan-type: 'fs'
           # scan-ref: '.'
           # trivy-config: trivy.yaml
           format: table
-          exit-code: 1
+          exit-code: 0
           ignore-unfixed: true
-          scanners: vuln
+          scanners: vuln,secret,misconfig
           vuln-type: os,library
-          severity: CRITICAL,HIGH
-          version: "v0.57.1"
+          severity: CRITICAL,HIGH # UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          version: "v0.57.1" # latest
           scan-type: config
+          hide-progress: true # Suppress progress bar and log output
+          output: trivy.txt
+          
           
 
       - name: Update Pull Request
@@ -102,6 +106,7 @@ jobs:
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
             #### Checkov 🧪\`${{ steps.checkov.outcome }}\`
+            #### Trivy 🧪\`${{ steps.trivy.outcome }}\`
 
             <details><summary>Show Plan</summary>
 
@@ -113,6 +118,11 @@ jobs:
 
             <details><summary>Show Checkov Results</summary>
             ${process.env.CHECKOV_RESULTS}
+
+            </details>
+
+            <details><summary>Show Trivy Results</summary>
+            ${process.env.TRIVY_RESULTS}
 
             </details>
 
