@@ -81,18 +81,26 @@ jobs:
   build:
     name: checkov
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      security-events: write # for GitHub/codeql-action/upload-sarif to upload SARIF results
     steps:
     - uses: actions/checkout@v3
 
     - name: Checkov GitHub Action
       uses: bridgecrewio/checkov-action@master
       with:
+        directory: ./
+        quiet: true # optional: display only failed checks
         # This will add both a CLI output to the console and create a results.sarif file
         output_format: cli,sarif
         output_file_path: console,results.sarif
+        framework: terraform
+        #soft_fail: true
+        compact: true
       
     - name: Upload SARIF file
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       
       # Results are generated only on a success or failure
       # this is required since GitHub by default won't run the next step
