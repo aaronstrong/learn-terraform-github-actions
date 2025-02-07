@@ -111,6 +111,7 @@ jobs:
         id: kics
         uses: checkmarx/kics-github-action@master
         with:
+          path: 'terraform'
           platform_type: terraform
           cloud_provider: aws,azure,gcp
           ignore_on_exit: results # Don't fail on resutls
