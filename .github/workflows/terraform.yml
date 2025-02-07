@@ -74,9 +74,61 @@ jobs:
       #   with:
       #     sarif_file: results.sarif
 
+      - name: Run Trivy
+        if: github.event_name == 'pull_request'
+        id: trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          # scan-type: 'fs'
+          # scan-ref: '.'
+          # trivy-config: trivy.yaml
+          format: table
+          exit-code: 0
+          ignore-unfixed: true
+          scanners: vuln,secret,misconfig
+          vuln-type: os,library
+          severity: CRITICAL,HIGH # UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          version: "v0.57.1" # latest
+          scan-type: config
+          hide-progress: false # Suppress progress bar and log output
+          output: trivy.txt
+
+      - name: Run Terrascan
+        if: github.event_name == 'pull_request'
+        id: terrascan
+        uses: tenable/terrascan-action@main
+        with:
+          iac_type: terraform # helm, k8s, kustomize, terraform
+          iac_dir: ./
+          non_recursive: false
+          iac_version: v14
+          policy_type: all # aws, azure, gcp, github, k8s
+          only_warn: true
+          # skip_rules
+          # sarif_upload
+
+      - name: Run TFLint
+        if: github.event_name == 'pull_request'
+        id: tflint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+          
+      - name: TFLint Show Version
+        run: tflint --version
+
+      # - name: TFLint init
+      #   run: tflint --init
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
+
+      - name: TFLint Run
+        run: tflint -f compact --recursive           
+          
+
       - name: Update Pull Request
         uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && (success() || failure())
         env:
           PLAN: ${{ steps.plan.outputs.stdout }}
         with:
@@ -86,12 +138,24 @@ jobs:
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
             #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Checkov 🧪\`${{ steps.checkov.outcome }}\`
+            #### Trivy 🧪\`${{ steps.trivy.outcome }}\`
 
             <details><summary>Show Plan</summary>
 
             \`\`\`terraform\n
             ${process.env.PLAN}
             \`\`\`
+
+            </details>
+
+            <details><summary>Show Checkov Results</summary>
+            ${process.env.CHECKOV_RESULTS}
+
+            </details>
+
+            <details><summary>Show Trivy Results</summary>
+            ${process.env.TRIVY_RESULTS}
 
             </details>
 
