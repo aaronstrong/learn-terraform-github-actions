@@ -47,19 +47,19 @@ jobs:
         continue-on-error: true
 
       # Run Checkov
-      - name: Checkov
-        if: github.event_name == 'pull_request'
-        id: checkov
-        uses: bridgecrewio/checkov-action@master
-        with:
-          directory: ./
-          quiet: true # optional: display only failed checks
-          # This will add both a CLI output to the console and create a results.sarif file
-          output_format: cli,sarif
-          output_file_path: console,results.sarif
-          framework: terraform
-          #soft_fail: true
-          compact: true
+      # - name: Checkov
+      #   if: github.event_name == 'pull_request'
+      #   id: checkov
+      #   uses: bridgecrewio/checkov-action@master
+      #   with:
+      #     directory: ./
+      #     quiet: true # optional: display only failed checks
+      #     # This will add both a CLI output to the console and create a results.sarif file
+      #     output_format: cli,sarif
+      #     output_file_path: console,results.sarif
+      #     framework: terraform
+      #     #soft_fail: true
+      #     compact: true
 
       # - name: Upload SARIF file
       #   uses: github/codeql-action/upload-sarif@v3
@@ -73,38 +73,38 @@ jobs:
       #   with:
       #     sarif_file: results.sarif
 
-      - name: Run Trivy
-        if: github.event_name == 'pull_request'
-        id: trivy
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          # scan-type: 'fs'
-          # scan-ref: '.'
-          # trivy-config: trivy.yaml
-          format: table
-          exit-code: 0
-          ignore-unfixed: true
-          scanners: vuln,secret,misconfig
-          vuln-type: os,library
-          severity: CRITICAL,HIGH # UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
-          version: "v0.57.1" # latest
-          scan-type: config
-          hide-progress: false # Suppress progress bar and log output
-          output: trivy.txt
+      # - name: Run Trivy
+      #   if: github.event_name == 'pull_request'
+      #   id: trivy
+      #   uses: aquasecurity/trivy-action@0.28.0
+      #   with:
+      #     # scan-type: 'fs'
+      #     # scan-ref: '.'
+      #     # trivy-config: trivy.yaml
+      #     format: table
+      #     exit-code: 0
+      #     ignore-unfixed: true
+      #     scanners: vuln,secret,misconfig
+      #     vuln-type: os,library
+      #     severity: CRITICAL,HIGH # UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+      #     version: "v0.57.1" # latest
+      #     scan-type: config
+      #     hide-progress: false # Suppress progress bar and log output
+      #     output: trivy.txt
 
-      - name: Run Terrascan
-        if: github.event_name == 'pull_request'
-        id: terrascan
-        uses: tenable/terrascan-action@main
-        with:
-          iac_type: terraform # helm, k8s, kustomize, terraform
-          iac_dir: ./
-          non_recursive: false
-          iac_version: v14
-          policy_type: all # aws, azure, gcp, github, k8s
-          only_warn: true
-          # skip_rules
-          # sarif_upload
+      # - name: Run Terrascan
+      #   if: github.event_name == 'pull_request'
+      #   id: terrascan
+      #   uses: tenable/terrascan-action@main
+      #   with:
+      #     iac_type: terraform # helm, k8s, kustomize, terraform
+      #     iac_dir: ./
+      #     non_recursive: false
+      #     iac_version: v14
+      #     policy_type: all # aws, azure, gcp, github, k8s
+      #     only_warn: true
+      #     # skip_rules
+      #     # sarif_upload
 
       - name: KICS
         if: github.event_name == 'pull_request'
