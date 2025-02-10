@@ -112,7 +112,7 @@ jobs:
         id: kics
         uses: checkmarx/kics-github-action@v2.1.5
         with:
-          path: 'terraform,cfn-templates,my-other-sub-folder/Dockerfile'
+          path: './'
           output_path: myResults/
           
       # Display the KICS results in json format
