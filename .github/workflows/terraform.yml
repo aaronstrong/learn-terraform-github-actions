@@ -41,6 +41,7 @@ jobs:
         if: github.ref != 'refs/head/main' && (success() || failure())
         run: terraform validate -no-color
 
+      # Update README.md
       - name: Render terraform docs inside the README.md and push changes back to PR branch
         uses: terraform-docs/gh-actions@main
         with:
