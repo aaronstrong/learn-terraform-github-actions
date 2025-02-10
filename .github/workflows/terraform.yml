@@ -112,7 +112,7 @@ jobs:
         id: kics
         uses: checkmarx/kics-github-action@v2.1.5
         with:
-          path: './'
+          path: './main.tf'
           output_path: myResults/
           
       # Display the KICS results in json format
