@@ -16,17 +16,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
-
-      - name: Render terraform docs inside the README.md and push changes back to PR branch
-        uses: terraform-docs/gh-actions@main
-        with:
-          working-dir: .
-          ouput-file: README.md
-          output-method: inject
-          git-push: "true"
-          git-commit-message: 'Update README.md with terraform-docs'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
@@ -50,6 +40,16 @@ jobs:
         id: validate
         if: github.ref != 'refs/head/main' && (success() || failure())
         run: terraform validate -no-color
+
+      - name: Render terraform docs inside the README.md and push changes back to PR branch
+        uses: terraform-docs/gh-actions@main
+        with:
+          working-dir: .
+          ouput-file: README.md
+          output-method: inject
+          git-push: "true"
+          git-commit-message: 'Update README.md with terraform-docs'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # Run a terraform plan for pull requests only
       - name: Terraform Plan
