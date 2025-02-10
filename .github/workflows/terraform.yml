@@ -119,23 +119,41 @@ jobs:
           # skip_rules
           # sarif_upload
 
-      - name: Run TFLint
+      - name: KICS
         if: github.event_name == 'pull_request'
-        id: tflint
-        uses: terraform-linters/setup-tflint@v4
+        id: kics
+        uses: checkmarx/kics-github-action@v2.1.5
         with:
-          tflint_version: latest
+          path: './main.tf'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ignore_on_exit: results
+          output_path: myResults/
+          enable_comments: true
+          bom: true
           
-      - name: TFLint Show Version
-        run: tflint --version
+      # Display the KICS results in json format
+      - name: display kics results
+        if: github.event_name == 'pull_request'
+        run: |
+          cat myResults/results.json
+
+      # - name: Run TFLint
+      #   if: github.event_name == 'pull_request'
+      #   id: tflint
+      #   uses: terraform-linters/setup-tflint@v4
+      #   with:
+      #     tflint_version: latest
+          
+      # - name: TFLint Show Version
+      #   run: tflint --version
 
       # - name: TFLint init
       #   run: tflint --init
       #   env:
       #     GITHUB_TOKEN: ${{ github.token }}
 
-      - name: TFLint Run
-        run: tflint -f compact --recursive           
+      # - name: TFLint Run
+      #   run: tflint -f compact --recursive           
           
 
       - name: Update Pull Request
