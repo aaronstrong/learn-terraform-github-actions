@@ -110,14 +110,10 @@ jobs:
       - name: KICS
         if: github.event_name == 'pull_request'
         id: kics
-        uses: checkmarx/kics-github-action@master
+        uses: checkmarx/kics-github-action@v2.1.5
         with:
-          path: ./
-          platform_type: terraform
-          cloud_provider: aws
-          ignore_on_exit: results # Don't fail on resutls
+          path: 'terraform,cfn-templates,my-other-sub-folder/Dockerfile'
           output_path: myResults/
-          enable_comments: true
           
       # Display the KICS results in json format
       - name: display kics results
