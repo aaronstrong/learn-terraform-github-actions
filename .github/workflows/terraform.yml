@@ -6,13 +6,6 @@ on:
       - master
   pull_request:
 
-permissions:
-  repository-projects: write
-  actions: write
-  checks: write
-  contents: write
-  deployments: write
-  id-token: write
 
 jobs:
   terraform:
@@ -32,6 +25,8 @@ jobs:
           ouput-file: README.md
           output-method: inject
           git-push: "true"
+          git-commit-message: 'Update README.md with terraform-docs'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
