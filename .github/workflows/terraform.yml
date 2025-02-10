@@ -117,6 +117,7 @@ jobs:
           ignore_on_exit: results
           output_path: myResults/
           enable_comments: true
+          bom: true
           
       # Display the KICS results in json format
       - name: display kics results
